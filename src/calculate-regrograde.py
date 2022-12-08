@@ -81,63 +81,32 @@ def check_retro(planet, t1):
         
     return is_retro 
 
-
-# planets = ['mercury', 'venus', 'mars', 'MARS', 'moon', 'JUPITER BARYCENTER', 7, 8, 9]
-
-#R, 1 MERCURY BARYCENTER, 2 VENUS BARYCENTER, 3 EARTH BARYCENTER, 4 MARS BARYCENTER, 5 JUPITER BARYCENTER,
-#6 SATURN BARYCENTER, 7 URANUS BARYCENTER, 8 NEPTUNE BARYCENTER, 9 PLUTO BARYCENTER, 10 SUN, 199 MERCURY, 3
-#99 EARTH, 299 VENUS, 301 MOON, 499 MARS"
-
-
-planets = [(1, "mercury"), (2, "venus"), (4, "mars"), (5, "jupiter"), (6, "saturn"), (7, "uranus"), 
-           (8, "neptune"), (9, "pluto"), (301, "moon") ]
+planets = [
+        (1, "mercury"), 
+        (2, "venus"), 
+        (4, "mars"), 
+        (5, "jupiter"), 
+        (6, "saturn"), 
+        (7, "uranus"), 
+        (8, "neptune"), 
+        (9, "pluto"), 
+        (301, "moon") 
+    ]
 
 data = {"dates": {}}
-
-# today = datetime.datetime.now()
 
 for year in range(2000, 2005):
     start_date  = datetime.datetime(year, 1, 1, 12, 0, 0, 0, datetime.timezone.utc)
     days = 365
     if calendar.isleap(year):
         days = 366
-    print(days)
     for offset in range(0, days):
         d = start_date + datetime.timedelta(offset)
         details = {}
         for planet in planets:
             details[planet[1]] = check_retro(planet[0], d)
-        # data["dates"].append(details)
-
         data["dates"][d.strftime("%Y-%m-%d")] = details
-
-
-    
-
-
-#for planet in planets:
-#    retrogrades = []
-#    for i in range (0, 10):
-#        new_date = start_date + datetime.timedelta(i)
-#        retrogrades.append({
-#            "date":
-#                new_date.strftime("%Y-%m-%d"), 
-#            "retrograde":
-#                get_planet_retrograde(
-#                    planet[0], new_date
-#                )
-#            })
-#    #print(retrogrades)
-#    data[planet[1]] = retrogrades
 
 with open('retrograte.json', 'w') as _out:
     json.dump(data, _out, sort_keys=True, indent=2)
-
-
-
-# via: https://github.com/G-Street/is-mercury-in-retrograde/blob/master/astro.py
-
-
-
-
 
