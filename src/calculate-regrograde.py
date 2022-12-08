@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import datetime, json, time, re
 import json
-import datetime, time, re
+import time
+# import re
 
-# from datetime import timedelta
 from skyfield.api import load
-
 
 def get_planet_retrograde(planet, t1):
     # fetch data from the United States Naval Observatory and the International Earth Rotation Service
@@ -89,12 +89,13 @@ planets = [(1, "mercury"), (2, "venus"), (4, "mars"), (5, "jupiter"), (6, "satur
 
 data = {}
 
-today = datetime.datetime.now()
+# today = datetime.datetime.now()
+start_date  = datetime.datetime(2000, 1, 1, 12, 0, 0, 0, datetime.timezone.utc)
 
 for planet in planets:
     retrogrades = []
     for i in range (0, 100):
-        new_date = today + datetime.timedelta(i)
+        new_date = start_date + datetime.timedelta(i)
         retrogrades.append({
             "date":
                 new_date.strftime("%Y-%m-%d"), 
@@ -107,7 +108,7 @@ for planet in planets:
     data[planet[1]] = retrogrades
 
 with open('retrograte.json', 'w') as _out:
-    json.dump(data, _out)
+    json.dump(data, _out, sort_keys=True, indent=2)
 
 # print(data)
 
