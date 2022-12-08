@@ -30,8 +30,8 @@ def get_planet_retrograde(planet, t1):
     #print(t2.year, t2.month, t2.day, t2.hour, t2.minute, precise_second_t2)
 
     # setting times 1 and 2 as terrestrial times
-    ttime1 = ts.utc(t1.year, t1.month, t1.day, t1.hour, t1.minute, 0)
-    ttime2 = ts.utc(t2.year, t2.month, t2.day, t2.hour, t2.minute, 0)
+    ttime1 = ts.utc(t1.year, t1.month, t1.day, t1.hour, t1.minute)
+    ttime2 = ts.utc(t2.year, t2.month, t2.day, t2.hour, t2.minute)
     # ttime1 = ts.utc(t1.year, t1.month, t1.day, t1.hour, t1.minute, precise_second_t1)
     # ttime2 = ts.utc(t2.year, t2.month, t2.day, t2.hour, t2.minute, precise_second_t2)
     # ttime2 = ts.now()
