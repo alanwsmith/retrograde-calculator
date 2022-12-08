@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
-import datetime, json, time, re
+import calendar
+import datetime 
 import json
+import re
 import time
-# import re
 
 from skyfield.api import load
 
-def get_planet_retrograde(planet, t1):
+def check_retro(planet, t1):
     # fetch data from the United States Naval Observatory and the International Earth Rotation Service
     planets = load('de421.bsp')
     # planets = load('de440.bsp')
@@ -63,23 +64,25 @@ def get_planet_retrograde(planet, t1):
     time2_seconds = sum([a*b for a,b in zip(ftr, map(float,arr2))])
 
     # get difference in RAs between times
-    RA_diff = float(time2_seconds - time1_seconds)
+    ra_diff = float(time2_seconds - time1_seconds)
 
     # interpret output of differences in RAs
-    if RA_diff < 0.000000:
+    if ra_diff < 0.000000:
         # MercRet = "The right ascension of Mercury is negative: Mercury is in retrograde"
-    	MercRet = "Yes"
-    elif RA_diff > 0.000000:
+    	is_retro = True
+    elif ra_diff > 0.000000:
         # MercRet = "The right ascension of Mercury is positive: Mercury is not in retrograde"
-    	MercRet = "No"
+    	is_retro = False 
     else:
-        MercRet = "The stars are not alligned"
-	# MercRet = "The stars are not aligned. I cannot tell if Mercury is in retrograde at the present time. Please come back later."
+	    # MercRet = "The stars are not aligned. I cannot tell if Mercury is in retrograde at the present time. Please come back later."
+	    # I'm putting this in as False because I need a binary
+        # MercRet = "The stars are not alligned"
+        is_retro = False 
         
-    return MercRet
+    return is_retro 
 
 
-planets = ['mercury', 'venus', 'mars', 'MARS', 'moon', 'JUPITER BARYCENTER', 7, 8, 9]
+# planets = ['mercury', 'venus', 'mars', 'MARS', 'moon', 'JUPITER BARYCENTER', 7, 8, 9]
 
 #R, 1 MERCURY BARYCENTER, 2 VENUS BARYCENTER, 3 EARTH BARYCENTER, 4 MARS BARYCENTER, 5 JUPITER BARYCENTER,
 #6 SATURN BARYCENTER, 7 URANUS BARYCENTER, 8 NEPTUNE BARYCENTER, 9 PLUTO BARYCENTER, 10 SUN, 199 MERCURY, 3
@@ -87,32 +90,49 @@ planets = ['mercury', 'venus', 'mars', 'MARS', 'moon', 'JUPITER BARYCENTER', 7, 
 
 
 planets = [(1, "mercury"), (2, "venus"), (4, "mars"), (5, "jupiter"), (6, "saturn"), (7, "uranus"), 
-           (8, "neptune"), (9, "pluto") ]
+           (8, "neptune"), (9, "pluto"), (301, "moon") ]
 
-data = {}
+data = {"dates": {}}
 
 # today = datetime.datetime.now()
-start_date  = datetime.datetime(2000, 1, 1, 12, 0, 0, 0, datetime.timezone.utc)
 
-for planet in planets:
-    retrogrades = []
-    for i in range (0, 100):
-        new_date = start_date + datetime.timedelta(i)
-        retrogrades.append({
-            "date":
-                new_date.strftime("%Y-%m-%d"), 
-            "retrograde":
-                get_planet_retrograde(
-                    planet[0], new_date
-                )
-            })
-    #print(retrogrades)
-    data[planet[1]] = retrogrades
+for year in range(2000, 2005):
+    start_date  = datetime.datetime(year, 1, 1, 12, 0, 0, 0, datetime.timezone.utc)
+    days = 365
+    if calendar.isleap(year):
+        days = 366
+    print(days)
+    for offset in range(0, days):
+        d = start_date + datetime.timedelta(offset)
+        details = {}
+        for planet in planets:
+            details[planet[1]] = check_retro(planet[0], d)
+        # data["dates"].append(details)
+
+        data["dates"][d.strftime("%Y-%m-%d")] = details
+
+
+    
+
+
+#for planet in planets:
+#    retrogrades = []
+#    for i in range (0, 10):
+#        new_date = start_date + datetime.timedelta(i)
+#        retrogrades.append({
+#            "date":
+#                new_date.strftime("%Y-%m-%d"), 
+#            "retrograde":
+#                get_planet_retrograde(
+#                    planet[0], new_date
+#                )
+#            })
+#    #print(retrogrades)
+#    data[planet[1]] = retrogrades
 
 with open('retrograte.json', 'w') as _out:
     json.dump(data, _out, sort_keys=True, indent=2)
 
-# print(data)
 
 
 # via: https://github.com/G-Street/is-mercury-in-retrograde/blob/master/astro.py
