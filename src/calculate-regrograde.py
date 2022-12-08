@@ -12,7 +12,7 @@ def check_retro(planet, t1):
 
     # Fetch data from the United States Naval Observatory 
     # and the International Earth Rotation Service
-    planets = load('de421.bsp')
+    planets = load('de440s.bsp')
 
     # Setup earth and target planet 
     earth, target_planet = planets['earth'], planets[planet]
@@ -77,9 +77,9 @@ planets = [
 
 data = {"dates": {}}
 
-for year in range(2000, 2001):
+for year in range(2000, 2101):
     print(f"Calculating year: {year}")
-    start_date  = datetime.datetime(year, 1, 1, 12, 0, 0, 0, datetime.timezone.utc)
+    start_date  = datetime.datetime(year, 1, 1, 0, 0, 0, 0, datetime.timezone.utc)
     days = 365
     if calendar.isleap(year):
         days = 366
