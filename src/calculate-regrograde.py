@@ -77,7 +77,7 @@ planets = [
 
 data = {"dates": {}}
 
-for year in range(2000, 2101):
+for year in range(2000, 2001):
     print(f"Calculating year: {year}")
     start_date  = datetime.datetime(year, 1, 1, 0, 0, 0, 0, datetime.timezone.utc)
     days = 365
@@ -86,9 +86,15 @@ for year in range(2000, 2101):
     for offset in range(0, days):
         d = start_date + datetime.timedelta(offset)
         details = {}
+
         for planet in planets:
             details[planet[1]] = check_retro(planet[0], d)
         data["dates"][d.strftime("%Y-%m-%d")] = details
+
+        # # TMP
+        # tmp_value = check_retro(1, d)
+        # print(f"{d.year}-{d.month}-{d.day} {tmp_value}")
+
 
 with open('retrograte.json', 'w') as _out:
     json.dump(data, _out, sort_keys=True, indent=2)
