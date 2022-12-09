@@ -1,60 +1,73 @@
 #!/usr/bin/env python3
 
-import datetime
 import json
 import numpy as np 
 import matplotlib.pyplot as plt
+import os
+import sys
 
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from skyfield.api import load
+
+
+script_dir = sys.path[0]
+data_dir = os.path.abspath(os.path.join(script_dir, "..", "data"))
 
 planets = load('de440s.bsp')
 earth = planets['earth']
 scale = load.timescale(builtin=True)
 
-def is_retro(target_planet, date):
-    target = planets[target_planet]
 
-    time_alfa = scale.utc(date)
-    time_bravo = scale.utc(date + datetime.timedelta(minutes=5))
+def get_rads(date, target):
+    t = scale.utc(date)
+    lat, lon, dist = earth.at(t).observe(target).ecliptic_latlon()
+    return (180./np.pi) * lon.radians
 
-    lat_alfa, lon_alfa, dist_alfa = earth.at(time_alfa).observe(target).ecliptic_latlon()
-    lat_bravo, lon_bravo, dist_bravo = earth.at(time_bravo).observe(target).ecliptic_latlon()
 
-    num_alfa = (180./np.pi) * lon_alfa.radians
-    num_bravo = (180./np.pi) * lon_bravo.radians
+def is_retro(target_object, date):
+    target = planets[target_object]
 
-    if num_alfa < num_bravo:
+    alfa = get_rads(date, target)
+    bravo = get_rads(date + timedelta(hours=1), target)
+
+    if alfa < bravo:
         return False
     else:
-        return True
+        return True 
+
 
 if __name__ == "__main__":
 
-    data = {
-        "dates": {}
-    }
+    data = {"dates": {}}
 
     planet_list = [
-        (1, "mercury"), 
-        (2, "venus"), 
-        (4, "mars"), 
-        (5, "jupiter"), 
-        (6, "saturn"), 
-        (7, "uranus"), 
-        (8, "neptune"), 
-        (9, "pluto"), 
-        (301, "moon") 
+        (1, "mercury"), (2, "venus"), (4, "mars"), (5, "jupiter"), 
+        (6, "saturn"), (7, "uranus"),  (8, "neptune"), 
+        (9, "pluto"), (301, "moon") 
     ]
 
-    start_date  = datetime.datetime(2000, 1, 1, 0, 0, 0, 0, datetime.timezone.utc)
-    for i in range(0, 36525):
-        date = start_date + datetime.timedelta(i)
-        print(date)
+    print(data_dir)
+
+    start_date  = datetime(2000, 1, 1, 0, 0, 0, 0, timezone.utc)
+    for i in range(0, 36890):
+        date = start_date + timedelta(i)
+        date_dir = os.path.join(data_dir, str(date.year), str(date.month), str(date.day))
+        Path(date_dir).mkdir(parents=True, exist_ok=True)
         details = {}
         for planet in planet_list:
-            details[planet[1]] = is_retro(planet[0], date)
+            value = is_retro(planet[0], date)
+            details[planet[1]] = value
+
+            planet_json = { "retrograte": value }
+            planet_file = os.path.join(date_dir, f"{planet[1]}.json")
+            print(planet_file)
+
+            with open(planet_file, 'w') as _planet:
+                json.dump(planet_json, _planet)
+
         data["dates"][date.strftime("%Y-%m-%d")] = details
 
     with open("retrogrades.json", "w") as _out:
-        json.dump(data, _out, sort_keys=True, indent=2)
+        json.dump(data, _out)
 
