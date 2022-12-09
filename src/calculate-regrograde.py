@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from skyfield.api import load
 
-planets = load('de421.bsp')
+planets = load('de440s.bsp')
 earth = planets['earth']
 scale = load.timescale(builtin=True)
 
@@ -47,9 +47,10 @@ if __name__ == "__main__":
         (301, "moon") 
     ]
 
-    start_date  = datetime.datetime(2022, 1, 1, 0, 0, 0, 0, datetime.timezone.utc)
-    for i in range(0, 365):
+    start_date  = datetime.datetime(2000, 1, 1, 0, 0, 0, 0, datetime.timezone.utc)
+    for i in range(0, 36525):
         date = start_date + datetime.timedelta(i)
+        print(date)
         details = {}
         for planet in planet_list:
             details[planet[1]] = is_retro(planet[0], date)
